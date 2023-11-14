@@ -12,5 +12,10 @@
     <p>Username: {{ user.userName }} - ID: {{ user.id }}</p>
 {% endfor %}
     {% endif %}   
+    {% if exercises %}
+    {% for exercise in exercises %}
+<p>exercice: {{ exercise.question }} - ID: {{ exercise.answer }}</p>
+{% endfor %}
+    {% endif %}  
 </body>
 </html>
