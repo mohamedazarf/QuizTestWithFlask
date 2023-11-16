@@ -6,12 +6,27 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>yesss</h1>
+    
     {% if users %}
     {% for user in users %}
-    <p>Username: {{ user.userName }} - ID: {{ user.id }} - password : {{ user.password }}</p>
+    <p>Username: {{ user.userName }} - ID: {{ user.id }} - Password: {{ user.password }} - Score: 
+        {% if user.scores %}
+        <ul>
+            {% for score in user.scores %}
+              <li>{{ score.score }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+            you didn't try yet
+        {% endif %}
+        </p>
 {% endfor %}
     {% endif %}   
+    {% if scores %}
+    {% for score in scores %}
+    <p>id: {{ score.id }} - ID: {{ score.score }} - </p>
+{% endfor %}
+    {% endif %}  
     {% if exercises %}
     {% for exercise in exercises %}
 <p>exercice: {{ exercise.question }} - ID: {{ exercise.answer }}</p>

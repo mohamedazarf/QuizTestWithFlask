@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
+from flask_migrate import Migrate
 # dotenv_path = os.path.join(os.path.dirname(__file__), 'environment.env')
 # load_dotenv(dotenv_path)
 # os.environ['SECRET_KEY'] = '27012001ma'
@@ -10,12 +11,21 @@ app=Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/mhmdz/OneDrive/Bureau/QuizTestFlask/venv/var/app-instance/users.db'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
 app.secret_key = "hello"
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     userName = db.Column(db.String(120), unique=True, nullable=False)
     password =db.Column(db.String(80), nullable=False)
+    scores = db.relationship('Score', backref='user', lazy=True)
+
+class Score(db.Model):
+    __tablename__ = 'score'
+    id = db.Column(db.Integer, primary_key=True)
+    userId = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    score = db.Column(db.Integer, nullable=False)
 
 class Exercise(db.Model):
     __tablename__ = 'exercise'
@@ -43,6 +53,7 @@ with app.app_context():
     if question3 not in existing_questions:
         exercise3 = Exercise(question=question3, answer="Jane Austen")
         db.session.add(exercise3)
+    
     db.session.add_all([exercise1, exercise2, exercise3])
     # db.session.add(userFiras)
     db.session.commit()
@@ -70,14 +81,16 @@ def login():
         else:
             return 'Invalid username or password'
     return render_template('login.html')
-@app.route('/users')
+@app.route('/')
 def view_users():
     users = User.query.all()
     exercises=Exercise.query.all()
-    return render_template('index.html', users=users,exercises=exercises)
+    scores=Score.query.all()
+    return render_template('index.html', users=users,exercises=exercises,scores=scores)
 
 @app.route('/sendResponses', methods=['POST','GET'])
 def respond():
+    user_id=session.get('user_id')
     exercises = Exercise.query.all()
     score = 0
     for exercise in exercises:
@@ -86,5 +99,8 @@ def respond():
             score += 1
     # if score>0:
     if request.method == 'POST':
+      new_score=Score(userId=user_id,score=score)
+      db.session.add(new_score)
+      db.session.commit()
       return f"your score is {score}"
     return render_template('test.html', score=score, exercises=exercises)
