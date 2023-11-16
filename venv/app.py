@@ -1,9 +1,16 @@
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+import os
+from dotenv import load_dotenv
+# dotenv_path = os.path.join(os.path.dirname(__file__), 'environment.env')
+# load_dotenv(dotenv_path)
+# os.environ['SECRET_KEY'] = '27012001ma'
+# secret_key = os.getenv('SECRET_KEY')
 app=Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/mhmdz/OneDrive/Bureau/QuizTestFlask/venv/var/app-instance/users.db'
 db = SQLAlchemy(app)
+app.secret_key = "hello"
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -51,6 +58,18 @@ def subscribe():
         return '<h1 style="text-align: center;">Thank you for subscribing!</h1>' 
     return render_template('subscription.html')
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        userName = request.form['userName']
+        password = request.form['password']
+        user = User.query.filter_by(userName=userName).first()
+        if user and user.password == password:
+            session['user_id'] = user.id  # Store user ID in session
+            return redirect(url_for('respond'))
+        else:
+            return 'Invalid username or password'
+    return render_template('login.html')
 @app.route('/users')
 def view_users():
     users = User.query.all()
