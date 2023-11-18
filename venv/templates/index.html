@@ -16,17 +16,20 @@
               <li>{{ score.score }}</li>
             {% endfor %}
           </ul>
+          <h3>Total Score: {{ user.total_score }}</h3>
         {% else %}
             you didn't try yet
         {% endif %}
         </p>
 {% endfor %}
     {% endif %}   
-    {% if scores %}
-    {% for score in scores %}
-    <p>id: {{ score.id }} - ID: {{ score.score }} - </p>
-{% endfor %}
-    {% endif %}  
+<ul>
+    <h1>top users</h1>
+  {% for users in top_users %}
+<li>{{ users.userName }} => {{ users.total_score }}</li>
+
+  {% endfor %}
+</ul>
     {% if exercises %}
     {% for exercise in exercises %}
 <p>exercice: {{ exercise.question }} - ID: {{ exercise.answer }}</p>

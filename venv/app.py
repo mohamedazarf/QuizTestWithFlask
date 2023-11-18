@@ -20,6 +20,7 @@ class User(db.Model):
     userName = db.Column(db.String(120), unique=True, nullable=False)
     password =db.Column(db.String(80), nullable=False)
     scores = db.relationship('Score', backref='user', lazy=True)
+    total_score = db.Column(db.Integer)
 
 class Score(db.Model):
     __tablename__ = 'score'
@@ -83,10 +84,12 @@ def login():
     return render_template('login.html')
 @app.route('/')
 def view_users():
+    calculate_total_score()
+    top_users = get_top_users()
     users = User.query.all()
-    exercises=Exercise.query.all()
-    scores=Score.query.all()
-    return render_template('index.html', users=users,exercises=exercises,scores=scores)
+    exercises = Exercise.query.all()
+    scores = Score.query.all()
+    return render_template('index.html', users=users, exercises=exercises, scores=scores, top_users=top_users)
 
 @app.route('/sendResponses', methods=['POST','GET'])
 def respond():
@@ -104,3 +107,27 @@ def respond():
       db.session.commit()
       return f"your score is {score}"
     return render_template('test.html', score=score, exercises=exercises)
+
+def calculate_total_score():
+    users = User.query.all()
+    for user in users:
+        scores = Score.query.filter_by(userId=user.id).all()
+        total_score = sum(score.score for score in scores)
+        user.total_score = total_score
+    db.session.commit()
+
+
+def get_top_users():
+    top_users= User.query.order_by(User.total_score.desc()).limit(2).all()
+    return top_users
+
+@app.route('/submit_question', methods=['POST','GET'])
+def submit_question():
+    if request.method == 'POST':
+        question = request.form.get('question')
+        response = request.form.get('response')
+        exercise = Exercise(question=question, answer=response)
+        db.session.add(exercise)
+        db.session.commit()
+        return "added successfully"
+    return render_template('addTest.html')
