@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>suggestions</h1>
+    <ul>
+        {% for suggestion in suggestions %}
+            <li>
+                <strong>ID:</strong> {{ suggestion.id }}<br>
+                <strong>User ID:</strong> {{ suggestion.userId }}<br>
+                <strong>Question:</strong> {{ suggestion.question }}<br>
+                <strong>Answer:</strong> {{ suggestion.answer }}
+                <form method="POST" action="/admin">
+                    <input type="hidden" name="suggestion_id" value="{{ suggestion.id }}">
+                    <button type="submit">approve</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+</body>
+</html>

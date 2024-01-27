@@ -16,11 +16,12 @@
               <li>{{ score.score }}</li>
             {% endfor %}
           </ul>
-          <h3>Total Score: {{ user.total_score }}</h3>
+          
         {% else %}
             you didn't try yet
         {% endif %}
         </p>
+        <h3>Total Score: {{ user.total_score }}</h3>
 {% endfor %}
     {% endif %}   
 <ul>
@@ -32,8 +33,10 @@
 </ul>
     {% if exercises %}
     {% for exercise in exercises %}
-<p>exercice: {{ exercise.question }} - ID: {{ exercise.answer }}</p>
+<p>exercice: {{ exercise.question }} - answer: {{ exercise.answer }}</p>
 {% endfor %}
     {% endif %}  
+
+ 
 </body>
 </html>

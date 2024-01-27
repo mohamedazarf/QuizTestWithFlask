@@ -34,15 +34,49 @@ class Exercise(db.Model):
     question = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=False) 
 
+class Suggestion(db.Model):
+    __tablename__ = 'suggestion'
+    id = db.Column(db.Integer, primary_key=True)
+    userId= db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+
+# with app.app_context():
+#     db.create_all()  # Create the necessary tables
+#     Exercise.query.delete()
+#     question1 = "What is the capital of France?"
+#     question2 = "What is the largest planet in our solar system?"
+#     question3 = "Who wrote the novel 'Pride and Prejudice'?"
+#     existing_exercises = Exercise.query.filter(Exercise.question.in_([question1, question2, question3])).all()
+#     existing_questions = [exercise.question for exercise in existing_exercises]
+#     # userFiras=User(userName='firas',password='firas123')
+#     if question1 not in existing_questions:
+#         exercise1 = Exercise(question=question1, answer="Paris")
+#         db.session.add(exercise1)
+    
+#     if question2 not in existing_questions:
+#         exercise2 = Exercise(question=question2, answer="Jupiter")
+#         db.session.add(exercise2)
+    
+#     if question3 not in existing_questions:
+#         exercise3 = Exercise(question=question3, answer="Jane Austen")
+#         db.session.add(exercise3)
+    
+#     db.session.add_all([exercise1, exercise2, exercise3])
+#     # db.session.add(userFiras)
+#     db.session.commit()
+    
 with app.app_context():
     db.create_all()  # Create the necessary tables
-    Exercise.query.delete()
+    
+    # Check if the default questions exist before adding them
     question1 = "What is the capital of France?"
     question2 = "What is the largest planet in our solar system?"
     question3 = "Who wrote the novel 'Pride and Prejudice'?"
+    
     existing_exercises = Exercise.query.filter(Exercise.question.in_([question1, question2, question3])).all()
     existing_questions = [exercise.question for exercise in existing_exercises]
-    # userFiras=User(userName='firas',password='firas123')
+    
     if question1 not in existing_questions:
         exercise1 = Exercise(question=question1, answer="Paris")
         db.session.add(exercise1)
@@ -55,9 +89,8 @@ with app.app_context():
         exercise3 = Exercise(question=question3, answer="Jane Austen")
         db.session.add(exercise3)
     
-    db.session.add_all([exercise1, exercise2, exercise3])
-    # db.session.add(userFiras)
     db.session.commit()
+
 
 @app.route('/subscribe', methods=['GET', 'POST'])
 def subscribe():
@@ -76,6 +109,8 @@ def login():
         userName = request.form['userName']
         password = request.form['password']
         user = User.query.filter_by(userName=userName).first()
+        if userName == 'admin':
+                return redirect(url_for('admin'))
         if user and user.password == password:
             session['user_id'] = user.id  # Store user ID in session
             return redirect(url_for('respond'))
@@ -89,7 +124,8 @@ def view_users():
     users = User.query.all()
     exercises = Exercise.query.all()
     scores = Score.query.all()
-    return render_template('index.html', users=users, exercises=exercises, scores=scores, top_users=top_users)
+    suggestions=Suggestion.query.all()
+    return render_template('index.html', users=users, exercises=exercises, scores=scores, top_users=top_users,suggestions=suggestions)
 
 @app.route('/sendResponses', methods=['POST','GET'])
 def respond():
@@ -124,10 +160,31 @@ def get_top_users():
 @app.route('/submit_question', methods=['POST','GET'])
 def submit_question():
     if request.method == 'POST':
+        userId=session.get('user_id')
         question = request.form.get('question')
         response = request.form.get('response')
-        exercise = Exercise(question=question, answer=response)
-        db.session.add(exercise)
+        new_suggestion=Suggestion(userId=userId,question=question,answer=response)
+        db.session.add(new_suggestion)
         db.session.commit()
-        return "added successfully"
+        return "added to suggestions waiting for approval" 
     return render_template('addTest.html')
+
+@app.route('/admin', methods=['POST','GET'])
+def admin():
+    suggestions=Suggestion.query.all()
+    if request.method == 'POST':
+        suggestion_id = request.form['suggestion_id']  # Get the ID of the approved suggestion
+        suggestion = Suggestion.query.get(suggestion_id) 
+        if suggestion:
+            # Create a new Exercise using the approved suggestion
+            exercise = Exercise(question=suggestion.question, answer=suggestion.answer)
+            db.session.add(exercise)
+            db.session.commit()
+            db.session.delete(suggestion)
+            db.session.commit()
+            user = User.query.get(suggestion.userId)
+            if user:
+                # Increment the user's total score by 10
+                user.total_score += 10
+                db.session.commit()
+    return render_template('suggestions.html',suggestions=suggestions)
