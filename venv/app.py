@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from dotenv import load_dotenv
 from flask_migrate import Migrate
-# dotenv_path = os.path.join(os.path.dirname(__file__), 'environment.env')
-# load_dotenv(dotenv_path)
+dotenv_path = os.path.join(os.path.dirname(__file__), 'environment.env')
+load_dotenv(dotenv_path)
+adminPassword=os.getenv('adminPassword')
+adminName=os.getenv('adminName')
 # os.environ['SECRET_KEY'] = '27012001ma'
 # secret_key = os.getenv('SECRET_KEY')
 app=Flask(__name__)
@@ -41,35 +43,8 @@ class Suggestion(db.Model):
     question = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=False)
 
-# with app.app_context():
-#     db.create_all()  # Create the necessary tables
-#     Exercise.query.delete()
-#     question1 = "What is the capital of France?"
-#     question2 = "What is the largest planet in our solar system?"
-#     question3 = "Who wrote the novel 'Pride and Prejudice'?"
-#     existing_exercises = Exercise.query.filter(Exercise.question.in_([question1, question2, question3])).all()
-#     existing_questions = [exercise.question for exercise in existing_exercises]
-#     # userFiras=User(userName='firas',password='firas123')
-#     if question1 not in existing_questions:
-#         exercise1 = Exercise(question=question1, answer="Paris")
-#         db.session.add(exercise1)
-    
-#     if question2 not in existing_questions:
-#         exercise2 = Exercise(question=question2, answer="Jupiter")
-#         db.session.add(exercise2)
-    
-#     if question3 not in existing_questions:
-#         exercise3 = Exercise(question=question3, answer="Jane Austen")
-#         db.session.add(exercise3)
-    
-#     db.session.add_all([exercise1, exercise2, exercise3])
-#     # db.session.add(userFiras)
-#     db.session.commit()
-    
 with app.app_context():
-    db.create_all()  # Create the necessary tables
-    
-    # Check if the default questions exist before adding them
+    db.create_all()  
     question1 = "What is the capital of France?"
     question2 = "What is the largest planet in our solar system?"
     question3 = "Who wrote the novel 'Pride and Prejudice'?"
@@ -154,7 +129,7 @@ def calculate_total_score():
 
 
 def get_top_users():
-    top_users= User.query.order_by(User.total_score.desc()).limit(2).all()
+    top_users= User.query.order_by(User.total_score.desc()).limit(3).all()
     return top_users
 
 @app.route('/submit_question', methods=['POST','GET'])
@@ -185,6 +160,46 @@ def admin():
             user = User.query.get(suggestion.userId)
             if user:
                 # Increment the user's total score by 10
-                user.total_score += 10
+                score= 10
+                db.session.commit()
+                new_score=Score(userId=user.user_id,score=score)
+                db.session.add(new_score)
                 db.session.commit()
     return render_template('suggestions.html',suggestions=suggestions)
+
+
+# @app.route('/admin', methods=['POST','GET'])
+# def admin():
+#     userId = session.get('user_id')
+#     user = User.query.get(userId)
+#     suggestions = []
+
+#     # Check if the user is logged in and is an admin
+#     if user and user.userName == adminName and user.password == adminPassword:
+#         suggestions = Suggestion.query.all()
+
+#         if request.method == 'POST':
+#             suggestion_id = request.form['suggestion_id']
+#             suggestion = Suggestion.query.get(suggestion_id)
+
+#             if suggestion:
+#                 # Create a new Exercise using the approved suggestion
+#                 exercise = Exercise(question=suggestion.question, answer=suggestion.answer)
+#                 db.session.add(exercise)
+#                 db.session.commit()
+
+#                 db.session.delete(suggestion)
+#                 db.session.commit()
+
+#                 user = User.query.get(suggestion.userId)
+#                 if user:
+#                     # Increment the user's total score by 10
+#                     user.total_score += 10
+#                     db.session.commit()
+
+#                 new_score = Score(userId=user.id, score=user.total_score)
+#                 db.session.add(new_score)
+#                 db.session.commit()
+
+#         return render_template('suggestions.html', suggestions=suggestions)
+

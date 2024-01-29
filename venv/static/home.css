@@ -1,0 +1,57 @@
+/* home.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+h1{
+    text-align: center;
+    color: white; width:100%;
+    background-color:green; padding:20px;
+}
+h3{
+    color: #333;  
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+.users > h1,
+.topUsers > h1,
+.exercices > h1 {
+    /* Resetting padding for direct h1 children */
+    padding: 0;
+}
+.users, .topUsers, .exercices {
+    max-width: 800px;
+    margin: auto;
+    padding:0 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex:1; 
+    height:100vh;
+    overflow-y: auto;
+}
+
+
+/* Responsive styles */
+@media (max-width: 600px) {
+    .users, .topUsers, .execics {
+        width: 90%;
+    }
+}

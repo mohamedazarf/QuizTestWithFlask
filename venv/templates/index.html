@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
-    
+  <div class="users">
+    <h1>users</h1>
     {% if users %}
     {% for user in users %}
-    <p>Username: {{ user.userName }} - ID: {{ user.id }} - Password: {{ user.password }} - Score: 
+   
+      <ul>
+        <li>Username: {{ user.userName }}</li>
+        <li>ID: {{ user.id }}</li>
+        <li>Password: {{ user.password }}</li>
         {% if user.scores %}
         <ul>
+          <li><b>Scores</b></li>
             {% for score in user.scores %}
               <li>{{ score.score }}</li>
             {% endfor %}
@@ -20,22 +27,30 @@
         {% else %}
             you didn't try yet
         {% endif %}
-        </p>
+      </ul>
         <h3>Total Score: {{ user.total_score }}</h3>
+        <hr>
 {% endfor %}
     {% endif %}   
 <ul>
+</div>
+<div class="exercices">
+  <h1>quiz questions</h1>
+    {% if exercises %}
+    {% for exercise in exercises %}
+<p><B>exercice:</B> {{ exercise.question }} <br><B>answer:</B> {{ exercise.answer }}</p>
+{% endfor %}
+    {% endif %}  
+  </div>
+<div class="topUsers">
     <h1>top users</h1>
   {% for users in top_users %}
-<li>{{ users.userName }} => {{ users.total_score }}</li>
+<li><bold>top {{ loop.index }}: </bold>{{ users.userName }} => total score: {{ users.total_score }}</li>
 
   {% endfor %}
 </ul>
-    {% if exercises %}
-    {% for exercise in exercises %}
-<p>exercice: {{ exercise.question }} - answer: {{ exercise.answer }}</p>
-{% endfor %}
-    {% endif %}  
+</div>
+
 
  
 </body>

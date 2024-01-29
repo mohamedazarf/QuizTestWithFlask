@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='forms.css') }}">
+  </head>
   <body>
-    <h1>Subscribe to our Newsletter</h1>
+    <h1>Subscribe to our platform</h1>
     <form method="POST" action="/subscribe">
       <input type="text" name="userName" placeholder="Enter your userName" required>
       <input type="password" name="password" placeholder="Enter a password" required>
