@@ -1,0 +1,29 @@
+body {
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex; flex-direction: column;
+    align-items: center; gap:20px;
+    justify-content: center;
+}
+
+
+.welcomeButtons {
+    display: block;
+    width: 250px;
+    padding: 20px 0;
+    font-size: 30px;
+    border-radius: 5px;
+    text-align: center;
+    background-color: #3498db; 
+    color: #fff; 
+    text-decoration: none; 
+    transition: background-color 0.3s ease; 
+}
+
+.welcomeButtons:hover {
+    background-color: #2980b9; 
+}
+a{text-decoration: none;}
+

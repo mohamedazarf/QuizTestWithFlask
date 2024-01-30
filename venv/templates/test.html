@@ -8,17 +8,21 @@
 
 </head>
 <body>
-{% if score %}
-  <h2>Your score: {{ score }}</h2>
-{% endif %}
-
+    {% if session.get('user_id') %}
+    <h2>Your score: {{ score }}</h2>
+    <!-- Display additional content for authenticated users -->
     <form action="/sendResponses" method="POST">
         {% for exercise in exercises %}
-          <h3>{{ exercise.question }}</h3>
-          <input type="text" name="{{ exercise.id }}" required>
+            <h3>{{ exercise.question }}</h3>
+            <input type="text" name="{{ exercise.id }}" required>
         {% endfor %}
         <button type="submit">Submit</button>
-      </form>
+    </form>
+{% else %}
+    <p>Please log in to access this content.</p>
+    <!-- You can also include a login link or redirect to the login page -->
+    <a href="{{ url_for('login') }}">Login</a>
+{% endif %}
 </body>
 <!-- <style>
   /* styles.css */

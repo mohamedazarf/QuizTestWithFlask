@@ -66,7 +66,9 @@ with app.app_context():
     
     db.session.commit()
 
-
+@app.route('/',methods=['POST','GET'])
+def welcome():
+    return render_template('welcome.html')
 @app.route('/subscribe', methods=['GET', 'POST'])
 def subscribe():
     if request.method == 'POST':
@@ -88,11 +90,12 @@ def login():
                 return redirect(url_for('admin'))
         if user and user.password == password:
             session['user_id'] = user.id  # Store user ID in session
-            return redirect(url_for('respond'))
+            print("User ID:", session['user_id'] )
+            return redirect(url_for('respond', user_id=user.id))
         else:
             return 'Invalid username or password'
     return render_template('login.html')
-@app.route('/')
+@app.route('/home')
 def view_users():
     calculate_total_score()
     top_users = get_top_users()
@@ -105,6 +108,9 @@ def view_users():
 @app.route('/sendResponses', methods=['POST','GET'])
 def respond():
     user_id=session.get('user_id')
+    print("User ID:", user_id)
+    if user_id is None:
+        return redirect (url_for('login'))
     exercises = Exercise.query.all()
     score = 0
     for exercise in exercises:
